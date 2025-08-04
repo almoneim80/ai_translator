@@ -1,0 +1,6 @@
+{
+  "src_lang": "eng_Latn",
+  "tgt_lang": "arb_Arab",
+  "max_length": 500,
+  "num_beams": 1
+}
