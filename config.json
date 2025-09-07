@@ -1,4 +1,5 @@
 {
+  "model_path": "D:\\ai_translator\\baligh\\model\\facebooknllb-200-distilled-600M",
   "src_lang": "eng_Latn",
   "tgt_lang": "arb_Arab",
   "max_length": 500,

@@ -18,10 +18,7 @@ engine = TranslationEngine(model_path=config["model_path"], device=device)
 
 # translation test text
 texts = [
-    "Hello!",
-    "Software architecture defines the structure of a system.",
-    """The goal of software architecture is to minimize the human resources 
-    required to build and maintain the required system."""
+    "Axis along which to sort. If None, the array is flattened before sorting. The default is -1, which sorts along the last axis."
 ]
 
 # اختبار الترجمة مع حساب الزمن
