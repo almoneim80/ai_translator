@@ -21,7 +21,7 @@ texts = [
     "Axis along which to sort. If None, the array is flattened before sorting. The default is -1, which sorts along the last axis."
 ]
 
-# اختبار الترجمة مع حساب الزمن
+# 
 for text in texts:
     start_time = time.time()
     translated = engine.translate(text, config["src_lang"], config["tgt_lang"], config["max_length"], config["num_beams"])
