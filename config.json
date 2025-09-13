@@ -1,7 +1,7 @@
 {
-  "model_path": "D:\\ai_translator\\baligh\\model\\facebooknllb-200-distilled-600M",
+  "model_path": "D:\\ai\\Projects\\ai_translator\\baligh\\model\\facebooknllb-200-distilled-600M",
   "src_lang": "eng_Latn",
-  "tgt_lang": "arb_Arab",
+  "tgt_lang": "fra_Latn",
   "max_length": 500,
   "num_beams": 1
 }

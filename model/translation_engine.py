@@ -18,6 +18,7 @@ class TranslationEngine:
     def translate(self, text, src_lang, tgt_lang, max_length=500, num_beams=1):
         # translate
         self.tokenizer.src_lang = src_lang
+        self.tokenizer.tgt_lang = tgt_lang
         inputs = self.tokenizer(text, return_tensors="pt")
         target_lang_id = self.tokenizer.convert_tokens_to_ids(tgt_lang)
 
