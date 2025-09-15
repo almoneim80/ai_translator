@@ -3,8 +3,9 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 import sys
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QTextEdit, QVBoxLayout, QMenuBar, QComboBox
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QTextEdit, QVBoxLayout, QMenuBar, QComboBox, QSystemTrayIcon, QMenu, QAction
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QCursor
 import pyperclip
 from PyQt5.QtCore import QTimer
 from ..model.translation_engine import TranslationEngine
@@ -13,6 +14,7 @@ import torch
 
 base_dir = os.path.dirname(os.path.abspath(__file__)) 
 config_path = os.path.join(base_dir, "../config.json")
+icon_path = os.path.join(base_dir, "../resources/icon.png")
 
 class TranslatorWindow(QWidget):
     def __init__(self):
@@ -30,9 +32,9 @@ class TranslatorWindow(QWidget):
             "Spanish": "spa_Latn"
         }
 
-        # config window
+        # ---------------------- config window ---------------------------------
         self.setWindowTitle("بليــــغ")
-        self.setWindowIcon(QIcon("icon.png"))
+        self.setWindowIcon(QIcon(icon_path))
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.WindowCloseButtonHint)  # Always on Top
         self.setFixedSize(400, 200)  # fixed size
@@ -68,7 +70,41 @@ class TranslatorWindow(QWidget):
         self.timer.timeout.connect(self._check_clipboard)
         self.timer.start(300) # every 0.3 second
 
-    # get copied text from clipboard
+
+        # System Tray
+        self.tray_icon = QSystemTrayIcon(QIcon(icon_path), self)
+        tray_menu = QMenu()
+
+        show_action = QAction("Show Window")
+        show_action.triggered.connect(self.show)
+        tray_menu.addAction(show_action)
+
+        hide_action = QAction("Hide Window")
+        hide_action.triggered.connect(self.hide)
+        tray_menu.addAction(hide_action)
+
+        exit_action = QAction("Exit")
+        exit_action.triggered.connect(QApplication.instance().quit)
+        tray_menu.addAction(exit_action)
+
+        self.tray_icon.setContextMenu(tray_menu)
+        self.tray_icon.show()
+        self.tray_icon.activated.connect(self.on_tray_icon_activated)
+
+
+    def on_tray_icon_activated(self, reason):
+        if reason == QSystemTrayIcon.Trigger: # Left clicks
+            if self.isVisible():
+                self.hide()
+            else:
+                self.show()
+                self.raise_() # window on top
+                self.activateWindow()
+        elif reason == QSystemTrayIcon.Context: # Right clicks
+            self.tray_icon.contextMenu().exec_(QCursor.pos())
+
+
+    # ----------------------------- get copied text from clipboard ------------------------------
     def _check_clipboard(self):
         copy_text = pyperclip.paste().strip()
         if copy_text and copy_text != self.last_clipboard_text:
@@ -97,7 +133,7 @@ class TranslatorWindow(QWidget):
             )
             self.translation_box.setText(traslated)
 
-    # when user change target language
+    # ------------------------------ change target language -----------------------------------
     def language_changed(self):
         selected_language = self.language_selector.currentText()
         lang_code = self.language_map[selected_language]
