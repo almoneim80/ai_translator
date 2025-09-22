@@ -3,9 +3,9 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 import sys
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QTextEdit, QVBoxLayout, QMenuBar, QComboBox, QSystemTrayIcon, QMenu, QAction
+from PyQt5.QtWidgets import QApplication, QWidget,QTextEdit, QVBoxLayout, QMenuBar, QComboBox, QSystemTrayIcon, QMenu, QAction, QGraphicsDropShadowEffect
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QCursor
+import keyboard
 import pyperclip
 from PyQt5.QtCore import QTimer
 from ..model.translation_engine import TranslationEngine
@@ -35,29 +35,62 @@ class TranslatorWindow(QWidget):
         # ---------------------- config window ---------------------------------
         self.setWindowTitle("بليــــغ")
         self.setWindowIcon(QIcon(icon_path))
-
+        #self.setWindowOpacity(0.9)
+        self.setAttribute(Qt.WA_TranslucentBackground)
         self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.WindowCloseButtonHint)  # Always on Top
         self.setFixedSize(400, 200)  # fixed size
-
-        # create menu
-        menubar = QMenuBar(self)
-        settings_menu = menubar.addMenu('Settings')
+        self.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
+        self.setStyleSheet("""
+            background-color: rgba(255, 255, 255, 0.85);
+            color: #333333;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            font-size: 14px;
+            border-radius: 15px;
+        """)
+        self.setStyleSheet("""
+            background: qlineargradient(
+                x1:0, y1:0, x2:1, y2:1,
+                stop:0 #e0f7fa, stop:1 #ffffff
+            );
+            border-radius: 15px;
+        """)
 
         # create main layout
         layout = QVBoxLayout()
-        layout.setMenuBar(menubar)
 
         # change language option
         self.language_selector = QComboBox()
         self.language_selector.addItems(["Arabic", "French", "Spanish"])
         self.language_selector.currentIndexChanged.connect(self.language_changed)
+        self.language_selector.setStyleSheet("""
+        background-color: #ffffff;
+        border-radius: 8px;
+        border: 1px solid #cccccc;
+        padding: 4px;
+    """)
         layout.addWidget(self.language_selector)
 
         # show translation
         self.translation_box = QTextEdit()
         self.translation_box.setReadOnly(True)
         self.translation_box.setText("Hello → مرحباً")  # for test
+        self.translation_box.setStyleSheet("""
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            border: 1px solid #cccccc;
+            padding: 10px;
+            font-size: 14px;
+            color: #222222;
+        """)
         layout.addWidget(self.translation_box)
+
+        # Shadow / Drop shadow
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(25)
+        shadow.setXOffset(0)
+        shadow.setYOffset(5)
+        shadow.setColor(Qt.gray)
+        self.setGraphicsEffect(shadow)
 
         self.setLayout(layout)
 
@@ -73,26 +106,30 @@ class TranslatorWindow(QWidget):
 
         # System Tray
         self.tray_icon = QSystemTrayIcon(QIcon(icon_path), self)
-        tray_menu = QMenu()
+        self.tray_menu = QMenu()
 
-        show_action = QAction("Show Window")
+        show_action = QAction("Show Window", self.tray_menu)
         show_action.triggered.connect(self.show)
-        tray_menu.addAction(show_action)
+        self.tray_menu.addAction(show_action)
 
-        hide_action = QAction("Hide Window")
+        hide_action = QAction("Hide Window", self.tray_menu)
         hide_action.triggered.connect(self.hide)
-        tray_menu.addAction(hide_action)
+        self.tray_menu.addAction(hide_action)
 
-        exit_action = QAction("Exit")
+        exit_action = QAction("Exit", self.tray_menu)
         exit_action.triggered.connect(QApplication.instance().quit)
-        tray_menu.addAction(exit_action)
+        self.tray_menu.addAction(exit_action)
 
-        self.tray_icon.setContextMenu(tray_menu)
+        self.tray_icon.setContextMenu(self.tray_menu)
         self.tray_icon.show()
         self.tray_icon.activated.connect(self.on_tray_icon_activated)
 
+        # keyboard shortcut to show/hide window
+        keyboard.add_hotkey("ctrl+shift+alt", self.toggle_visibility)
 
+    # ----------------------------- show tray icon menu ------------------------------
     def on_tray_icon_activated(self, reason):
+        print("Tray activated reason:", reason)
         if reason == QSystemTrayIcon.Trigger: # Left clicks
             if self.isVisible():
                 self.hide()
@@ -100,9 +137,6 @@ class TranslatorWindow(QWidget):
                 self.show()
                 self.raise_() # window on top
                 self.activateWindow()
-        elif reason == QSystemTrayIcon.Context: # Right clicks
-            self.tray_icon.contextMenu().exec_(QCursor.pos())
-
 
     # ----------------------------- get copied text from clipboard ------------------------------
     def _check_clipboard(self):
@@ -149,6 +183,16 @@ class TranslatorWindow(QWidget):
             )
             self.translation_box.setText(translated)
         print(f"Target language changed to: {selected_language} ({lang_code})")
+
+    # ----------------------------- toggle to show window using shortcut ------------------------------
+    def toggle_visibility(self):
+        if self.isVisible():
+            self.hide()
+        else:
+            self.show()
+            self.raise_()
+            self.activateWindow()
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
