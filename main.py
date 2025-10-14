@@ -1,31 +1,77 @@
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
-import json
-import time
+import sys
 import torch
-from model.translation_engine import TranslationEngine
+from PyQt5.QtWidgets import QApplication
+from baligh.ui.main_window import TranslatorWindow
+from baligh.model.translation_engine import TranslationEngine
+from baligh.model.translation_service import TranslationService
+from baligh.services.config_loader import load_config
+from baligh.services.clipboard_service import ClipboardService
+from baligh.services.keyboard_service import KeyboardService
+import ctypes
 
-# load configuration
-with open("config.json", "r", encoding="utf-8") as f:
-    config = json.load(f)
+def main():
+    """
+    Main entry point for the Baligh Translator application.
+    """
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(u"ai_translator.app")
+    app = QApplication(sys.argv)
 
-# select device
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # ------------------- Load Configuration -------------------
+    config = load_config()
 
-# create engin (object)
-engine = TranslationEngine(model_path=config["model_path"], device=device)
+    # ------------------- Initialize Translation Engine -------------------
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    engine = TranslationEngine(model_path=config["model_path"], device=device)
+    translation_service = TranslationService(engine)
 
-# translation test text
-texts = [
-    "Axis along which to sort. If None, the array is flattened before sorting. The default is -1, which sorts along the last axis."
-]
+    # ------------------- Initialize UI -------------------
+    window = TranslatorWindow()
+    window.translation_service = translation_service
+    window.config = config
+    window.show()
+    window.isLeftToRight()
 
-# 
-for text in texts:
-    start_time = time.time()
-    translated = engine.translate(text, config["src_lang"], config["tgt_lang"], config["max_length"], config["num_beams"])
-    end_time = time.time()
-    print(f"\nOriginal: {text}")
-    print(f"Translated: {translated}")
-    print(f"Time: {end_time - start_time:.2f} sec")
+    # ------------------- Clipboard Handling -------------------
+    def on_clipboard_text_copied(text: str):
+        """
+        Trigger translation for newly copied text using last selected language.
+        """
+
+        if not getattr(window, "clipboard_enabled", True):
+            return
+
+        if window.isHidden():
+            window.show()
+            window.activateWindow()
+            window.raise_()
+
+        window.last_text = text
+        tgt_lang = window.language_map.get(window.current_language, "arb_Arab")
+        window.translation_box.setText("Translating...")
+        window.translation_service.translate_async(
+            text=text,
+            src_lang=window.config["src_lang"],
+            tgt_lang=tgt_lang,
+            max_length=window.config["max_length"],
+            num_beams=window.config["num_beams"],
+            callback=lambda translated: window.translation_box.setText(translated)
+        )
+
+    window.clipboard_service = ClipboardService(callback=on_clipboard_text_copied)
+
+    # Link Toggle to enable/disable monitoring
+    window.clipboard_toggle_action.triggered.connect(
+        lambda checked: window.clipboard_service.start() if checked else window.clipboard_service.stop())
+
+    # ------------------- Keyboard Shortcut -------------------
+    KeyboardService(toggle_callback=window.toggle_visibility)
+
+    # ------------------- Start Application -------------------
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
