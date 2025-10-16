@@ -13,9 +13,6 @@ from baligh.services.keyboard_service import KeyboardService
 import ctypes
 
 def main():
-    """
-    Main entry point for the Baligh Translator application.
-    """
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(u"ai_translator.app")
     app = QApplication(sys.argv)
 
@@ -36,29 +33,9 @@ def main():
 
     # ------------------- Clipboard Handling -------------------
     def on_clipboard_text_copied(text: str):
-        """
-        Trigger translation for newly copied text using last selected language.
-        """
-
         if not getattr(window, "clipboard_enabled", True):
             return
-
-        if window.isHidden():
-            window.show()
-            window.activateWindow()
-            window.raise_()
-
-        window.last_text = text
-        tgt_lang = window.language_map.get(window.current_language, "arb_Arab")
-        window.translation_box.setText("Translating...")
-        window.translation_service.translate_async(
-            text=text,
-            src_lang=window.config["src_lang"],
-            tgt_lang=tgt_lang,
-            max_length=window.config["max_length"],
-            num_beams=window.config["num_beams"],
-            callback=lambda translated: window.translation_box.setText(translated)
-        )
+        window.on_clipboard_text_copied(text)
 
     window.clipboard_service = ClipboardService(callback=on_clipboard_text_copied)
 
