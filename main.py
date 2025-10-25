@@ -1,16 +1,19 @@
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 import sys
 import torch
 from PyQt5.QtWidgets import QApplication
 from baligh.ui.main_window import TranslatorWindow
-from baligh.model.translation_engine import TranslationEngine
-from baligh.model.translation_service import TranslationService
+from baligh.core import TranslationEngine
+from baligh.core import TranslationService
 from baligh.services.config_loader import load_config
 from baligh.services.clipboard_service import ClipboardService
 from baligh.services.keyboard_service import KeyboardService
 import ctypes
+
 
 def main():
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(u"ai_translator.app")
@@ -42,10 +45,8 @@ def main():
     # Link Toggle to enable/disable monitoring
     window.clipboard_toggle_action.triggered.connect(
         lambda checked: window.clipboard_service.start() if checked else window.clipboard_service.stop())
-
     # ------------------- Keyboard Shortcut -------------------
     KeyboardService(toggle_callback=window.toggle_visibility)
-
     # ------------------- Start Application -------------------
     sys.exit(app.exec_())
 

@@ -1,10 +1,10 @@
 from PyQt5.QtCore import QPropertyAnimation, QRect, QEasingCurve
 
+
 class WindowAnimator:
     """
     Handles smooth expand/collapse animations for the translator window.
     """
-
     def __init__(self, window):
         self.window = window
         self.animation = QPropertyAnimation(window, b"geometry")

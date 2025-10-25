@@ -1,4 +1,4 @@
-model/facebooknllb-200-distilled-600M
+models/facebooknllb-200-distilled-600M
 *.bin
 *.pt
 *.onnx
