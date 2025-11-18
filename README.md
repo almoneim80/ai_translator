@@ -1,97 +1,125 @@
-### 🧠 Baligh Translator
-Baligh Translator is an AI-powered translation desktop app built with Python and PyQt5.
-It provides a smooth, modern, and intelligent interface for instant text translation.
+# Baligh Translator
 
-### 🚀 Features
-⚡ Instant translation using advanced AI models
-💬 Supports multiple languages
-🖥️ Clean and modern user interface
-💾 Works offline after setup
-🔒 Privacy-friendly – no data storage
-🪟 Fully compatible with Windows 10/11
+**Baligh Translator** is an AI-powered desktop translation application built with **Python** and **PyQt5**. It provides a modern, intuitive interface for instant text translation, works offline, and ensures full privacy for users.
 
-### 🧩 Requirements
-If running from source:
-Python 3.10 or higher
-Install dependencies:
+---
+
+## Table of Contents
+
+1. [Features](#features)
+2. [Requirements](#requirements)
+3. [Installation & Usage](#installation--usage)
+4. [Developer Guide](#developer-guide)
+5. [Project Structure](#project-structure)
+6. [AI & Models](#ai--models)
+7. [Localization](#localization)
+8. [Known Limitations](#known-limitations)
+9. [License](#license)
+10. [Developer](#developer)
+
+---
+
+## Features
+
+- ⚡ **Instant Translation:** Translate text in real-time using advanced AI models.
+- 💬 **Multi-Language Support:** Supports a variety of languages.
+- 🖥️ **Modern User Interface:** Clean, responsive, and intuitive design.
+- 💾 **Offline Mode:** Can operate without an internet connection after setup.
+- 🔒 **Privacy-Friendly:** No data is stored or sent externally.
+- 🪟 **Windows Compatibility:** Supports Windows 10 and 11 fully.
+
+---
+
+## Requirements
+
+### Running from Source
+
+- **Python 3.10 or higher**
+- Install dependencies:
+```
 pip install -r requirements.txt
+```
 
+### Using Executable (EXE)
+No dependencies needed. Run main.exe directly.
 
-If using the executable (EXE) version:
-No requirements — just run the file directly.
+### Installation & Usage
+Option 1 – Run Directly
 
-🏗️ Installation & Usage
-🔹 Option 1 – Run directly
+### Open the dist/ folder.
+1. Double-click main.exe.
 
-Open the dist/ folder
-
-Double-click main.exe
-
-🔹 Option 2 – Install as a Windows app
-
-Run BalighTranslatorSetup.exe
-
-Follow the installation wizard
-
-Launch from:
-
-Desktop shortcut
-
-Windows Start menu
-
-⚙️ Building the Executable (Developers)
-
-To generate the .exe file:
-
+### Option 2 – Install as a Windows App
+1. Run BalighTranslatorSetup.exe.
+2. Follow the installation wizard.
+3. Launch via:
+   - Desktop shortcut
+   - Windows Start menu
+ 
+### Developer Guide
+- Build Executable
+To create the .exe file from source:
+```
 pyinstaller main.spec
-
-
-After completion, you’ll get:
-
+```
+Output structure:
+```
 dist/
- └── main.exe
-
-
-To build with a custom icon or single-file mode:
-
+└── main.exe
+```
+To build a single-file executable with a custom icon:
+```
 pyinstaller --onefile --windowed --icon=assets/icon.ico main.py
-
-🧠 Project Structure
-BalighTranslator/
-├── main.py                 # Main entry point
-├── ui/                     # UI layouts and components
-├── core/                   # Business logic & processing
-├── assets/                 # Icons and images
-├── requirements.txt
-├── main.spec               # PyInstaller build spec
-└── README.md
-
-🪄 Developer Tips
-
-Always use a virtual environment:
-
+```
+### Recommended Practices
+Use a virtual environment:
+ ```
 python -m venv venv
 venv\Scripts\activate
-
-
+```
 Ensure required packages are installed:
-
+```
 pip install pyqt5 pyinstaller
+```
 
-⚠️ Notes
+### Project Structure
+```
+BalighTranslator/
+├── main.py              # Main entry point
+├── ui/                  # UI layouts and components
+├── core/                # Business logic & translation engine
+├── assets/              # Icons and images
+├── config/              # Configuration files
+├── services/            # Services: cache, clipboard, keyboard, etc.
+├── models/              # Pre-trained AI translation models
+├── infrastructure/      # File/download management, quantization
+├── utils/               # Helpers, logger, localization utilities
+├── main.spec            # PyInstaller build spec
+├── requirements.txt
+└── README.md
+```
 
-Supports Windows 64-bit only
+### AI & Models
+- AI Model: facebook/nllb-200-distilled-600M for multilingual translation.
+- Offline inference supported after model download.
+- Includes pytorch_model.bin, tokenizer.json, sentencepiece.bpe.model, and config files.
 
-If DLL errors appear, reinstall PyQt5:
+### Localization
+- Multi-language UI support.
+- Configuration file: Localization/en.json.
+- Easily extendable to other languages.
 
+## Known Limitations
+Windows 64-bit only.
+DLL errors may require reinstalling PyQt5:
+```
 pip install pyqt5==5.15.9
+```
+Avoid deleting subfolders unless building with --onefile.
 
+### License
+Released under the MIT License. Free to use, modify, and distribute with proper attribution.
 
-Avoid deleting subfolders when moving the app (unless built with --onefile)
-
-📄 License
-
-Released under the MIT License.
-You can use, modify, and distribute the app freely, provided attribution is preserved.
-
-👤 Developer
+### Developer
+Abdulmonem Omar
+ذذذذ``````ذ
